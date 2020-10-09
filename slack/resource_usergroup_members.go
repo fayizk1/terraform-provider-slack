@@ -87,6 +87,10 @@ func resourceSlackUserGroupMembersRead(d *schema.ResourceData, meta interface{})
 	members, err := client.GetUserGroupMembersContext(ctx, usergroupId)
 
 	if err != nil {
+		if strings.Contains(err.Error(), `no_such_subteam`) {
+			d.SetId("")
+			return nil
+		}
 		return err
 	}
 
