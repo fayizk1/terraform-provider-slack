@@ -63,7 +63,7 @@ func resourceSlackUserGroupMembersCreate(d *schema.ResourceData, meta interface{
 	userGroup, err := client.UpdateUserGroupMembersContext(ctx, usergroupId, userIdParam)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("user group member write error: %s ,  %s", usergroupId, err.Error())
 	}
 
 	configureSlackUserGroupMembers(d, userGroup)
@@ -91,7 +91,7 @@ func resourceSlackUserGroupMembersRead(d *schema.ResourceData, meta interface{})
 			d.SetId("")
 			return nil
 		}
-		return err
+		return fmt.Errorf("user group member read error: %s ,  %s", usergroupId, err.Error())
 	}
 
 	_ = d.Set("members", members)
@@ -128,7 +128,7 @@ func resourceSlackUserGroupMembersUpdate(d *schema.ResourceData, meta interface{
 	userGroup, err := client.UpdateUserGroupMembersContext(ctx, usergroupId, userIdParam)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("user group member update error: %s ,  %s", usergroupId, err.Error())
 	}
 
 	configureSlackUserGroupMembers(d, userGroup)
@@ -149,8 +149,9 @@ func resourceSlackUserGroupMembersDelete(d *schema.ResourceData, meta interface{
 	log.Printf("[DEBUG] Reading usergroup members: %s", usergroupId)
 
 	// Cannot use "" as a member parameter, so let me disable it
-	if _, err := client.DisableUserGroupContext(ctx, usergroupId); err != nil {
-		return err
+	if _, err := client.DisableUserGroupContext(ctx, usergroupId); err != nil && ! strings.Contains(err.Error(),
+		`no_such_subteam`) {
+		return fmt.Errorf("user group member delete error: %s ,  %s", usergroupId, err.Error())
 	}
 
 	d.SetId("")
