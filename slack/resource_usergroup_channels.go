@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/slack-go/slack"
 	"log"
+	"strings"
 )
 
 func resourceSlackUserGroupChannels() *schema.Resource {
@@ -176,7 +177,10 @@ func resourceSlackUserGroupChannelsDelete(d *schema.ResourceData, meta interface
 	}
 
 	_, err := client.UpdateUserGroupContext(ctx, *params)
+	if err != nil && !strings.Contains(err.Error(), "no_such_subteam") {
+		return fmt.Errorf("user group channel update error: %s,  %s", usergroupId, err.Error())
+	}
 
 	d.SetId("")
-	return err
+	return nil
 }
