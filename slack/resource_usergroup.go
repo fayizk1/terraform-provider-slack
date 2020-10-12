@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/slack-go/slack"
 	"log"
+	"strings"
 )
 
 const userGroupListCacheFileName = "usergroups.json"
@@ -164,7 +165,8 @@ func resourceSlackUserGroupDelete(d *schema.ResourceData, meta interface{}) erro
 	id := d.Id()
 
 	log.Printf("[DEBUG] Deleting usergroup: %s", id)
-	if _, err := client.DisableUserGroupContext(ctx, id); err != nil {
+	if _, err := client.DisableUserGroupContext(ctx, id); err != nil && !strings.Contains(err.Error(),
+		"already_disabled") {
 		return fmt.Errorf("user group delete error: %s ,  %s", d.Id(), err.Error())
 	}
 
