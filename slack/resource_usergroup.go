@@ -80,7 +80,7 @@ func resourceSlackUserGroupCreate(d *schema.ResourceData, meta interface{}) erro
 	userGroup, err := client.CreateUserGroupContext(ctx, *newUserGroup)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("user group create error: %s (%s),  %s", handle, name, err.Error())
 	}
 
 	configureSlackUserGroup(d, userGroup)
@@ -107,7 +107,7 @@ func resourceSlackUserGroupRead(d *schema.ResourceData, meta interface{}) error 
 		})
 
 		if err != nil {
-			return err
+			return fmt.Errorf("user group read error: %s,  %s", d.Id(), err.Error())
 		}
 
 		userGroups = &tempUserGroups
@@ -150,7 +150,7 @@ func resourceSlackUserGroupUpdate(d *schema.ResourceData, meta interface{}) erro
 	userGroup, err := client.UpdateUserGroupContext(ctx, *editedUserGroup)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("user group update error: %s (%s),  %s", handle, name, err.Error())
 	}
 
 	configureSlackUserGroup(d, userGroup)
@@ -165,7 +165,7 @@ func resourceSlackUserGroupDelete(d *schema.ResourceData, meta interface{}) erro
 
 	log.Printf("[DEBUG] Deleting usergroup: %s", id)
 	if _, err := client.DisableUserGroupContext(ctx, id); err != nil {
-		return err
+		return fmt.Errorf("user group delete error: %s ,  %s", d.Id(), err.Error())
 	}
 
 	d.SetId("")
