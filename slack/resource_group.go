@@ -2,6 +2,7 @@ package slack
 
 import (
 	"context"
+	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/slack-go/slack"
 	"log"
@@ -102,7 +103,7 @@ func resourceSlackGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	group, err := client.CreateGroupContext(ctx, newGroup)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("resource group create error: %s ,  %s", name, err.Error())
 	}
 
 	configureSlackGroup(d, group)
@@ -120,7 +121,7 @@ func resourceSlackGroupRead(d *schema.ResourceData, meta interface{}) error {
 	group, err := client.GetGroupInfoContext(ctx, id)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("resource group delete error: %s ,  %s", id, err.Error())
 	}
 
 	configureSlackGroup(d, group)
@@ -135,18 +136,18 @@ func resourceSlackGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 
 	if _, err := client.RenameGroupContext(ctx, id, d.Get("name").(string)); err != nil {
-		return err
+		return fmt.Errorf("resource group update error: %s ,  %s", id, err.Error())
 	}
 
 	if topic, ok := d.GetOk("topic"); ok {
 		if _, err := client.SetGroupTopicContext(ctx, id, topic.(string)); err != nil {
-			return err
+			return fmt.Errorf("resource group update error: %s ,  %s", id, err.Error())
 		}
 	}
 
 	if purpose, ok := d.GetOk("purpose"); ok {
 		if _, err := client.SetGroupPurposeContext(ctx, id, purpose.(string)); err != nil {
-			return err
+			return fmt.Errorf("resource group update error: %s ,  %s", id, err.Error())
 		}
 	}
 
@@ -154,13 +155,13 @@ func resourceSlackGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 		if isArchived.(bool) {
 			if err := client.ArchiveGroupContext(ctx, id); err != nil {
 				if err.Error() != "already_archived" {
-					return err
+					return fmt.Errorf("resource group update error: %s ,  %s", id, err.Error())
 				}
 			}
 		} else {
 			if err := client.UnarchiveGroupContext(ctx, id); err != nil {
 				if err.Error() != "not_archived" {
-					return err
+					return fmt.Errorf("resource group update error: %s ,  %s", id, err.Error())
 				}
 			}
 		}
@@ -178,7 +179,7 @@ func resourceSlackGroupDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Deleting(archive) Group: %s (%s)", id, d.Get("name"))
 
 	if err := client.ArchiveGroupContext(ctx, id); err != nil {
-		return err
+		return fmt.Errorf("resource group delete error: %s ,  %s", id, err.Error())
 	}
 
 	d.SetId("")

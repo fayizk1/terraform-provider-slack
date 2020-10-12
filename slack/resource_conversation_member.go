@@ -74,10 +74,10 @@ func resourceSlackConversationMemberCreate(d *schema.ResourceData, meta interfac
 				return nil
 			}
 		}
-		return err
+		return fmt.Errorf("resource conv member read error: %s ,  %s", userID, err.Error())
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("resource conv member read error: %s ,  %s", userID, err.Error())
 	}
 
 	configureSlackConversationMember(d, conversationID, userID)
@@ -97,7 +97,7 @@ func resourceSlackConversationMemberRead(d *schema.ResourceData, meta interface{
 	})
 
 	if err != nil {
-		return err
+		return fmt.Errorf("resource conv member read error: %s ,  %s", userID, err.Error())
 	}
 
 	for _, memberID := range memberIDs {
@@ -136,10 +136,10 @@ func resourceSlackConversationMemberDelete(d *schema.ResourceData, meta interfac
 					return nil
 				}
 			}
-			return err
+			return fmt.Errorf("resource conv member delete error: %s ,  %s", userID, err.Error())
 		})
 		if err != nil {
-			return err
+			return fmt.Errorf("resource conv member delete error: %s ,  %s", userID, err.Error())
 		}
 	}
 

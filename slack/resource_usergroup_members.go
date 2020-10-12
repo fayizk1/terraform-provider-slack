@@ -113,7 +113,7 @@ func resourceSlackUserGroupMembersUpdate(d *schema.ResourceData, meta interface{
 	_, err := client.EnableUserGroupContext(ctx, usergroupId)
 
 	if err != nil && err.Error() != "already_enabled" {
-		return err
+		return fmt.Errorf("resource memeber update error: %s ,  %s", usergroupId, err.Error())
 	}
 
 	iMembers := d.Get("members").([]interface{})

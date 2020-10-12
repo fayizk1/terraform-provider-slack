@@ -2,6 +2,7 @@ package slack
 
 import (
 	"context"
+	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/slack-go/slack"
 	"log"
@@ -101,7 +102,7 @@ func resourceSlackChannelCreate(d *schema.ResourceData, meta interface{}) error 
 	channel, err := client.CreateChannelContext(ctx, newChannel)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("resource channel create error: %s ,  %s", name, err.Error())
 	}
 
 	configureSlackChannel(d, channel)
@@ -119,7 +120,7 @@ func resourceSlackChannelRead(d *schema.ResourceData, meta interface{}) error {
 	channel, err := client.GetChannelInfoContext(ctx, id)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("resource channel read error: %s ,  %s", id, err.Error())
 	}
 
 	configureSlackChannel(d, channel)
@@ -134,18 +135,18 @@ func resourceSlackChannelUpdate(d *schema.ResourceData, meta interface{}) error 
 	id := d.Id()
 
 	if _, err := client.RenameChannelContext(ctx, id, d.Get("name").(string)); err != nil {
-		return err
+		return fmt.Errorf("resource channel update error: %s ,  %s", id, err.Error())
 	}
 
 	if topic, ok := d.GetOk("topic"); ok {
 		if _, err := client.SetChannelTopicContext(ctx, id, topic.(string)); err != nil {
-			return err
+			return fmt.Errorf("resource channel update error: %s ,  %s", id, err.Error())
 		}
 	}
 
 	if purpose, ok := d.GetOk("purpose"); ok {
 		if _, err := client.SetChannelPurposeContext(ctx, id, purpose.(string)); err != nil {
-			return err
+			return fmt.Errorf("resource channel update error: %s ,  %s", id, err.Error())
 		}
 	}
 
@@ -153,13 +154,13 @@ func resourceSlackChannelUpdate(d *schema.ResourceData, meta interface{}) error 
 		if isArchived.(bool) {
 			if err := client.ArchiveChannelContext(ctx, id); err != nil {
 				if err.Error() != "already_archived" {
-					return err
+					return fmt.Errorf("resource channel update error: %s ,  %s", id, err.Error())
 				}
 			}
 		} else {
 			if err := client.UnarchiveChannelContext(ctx, id); err != nil {
 				if err.Error() != "not_archived" {
-					return err
+					return fmt.Errorf("resource channel update error: %s ,  %s", id, err.Error())
 				}
 			}
 		}
@@ -177,7 +178,7 @@ func resourceSlackChannelDelete(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Deleting(archive) Channel: %s (%s)", id, d.Get("name"))
 
 	if err := client.ArchiveChannelContext(ctx, id); err != nil {
-		return err
+		return fmt.Errorf("resource channel delete error: %s ,  %s", id, err.Error())
 	}
 
 	d.SetId("")
