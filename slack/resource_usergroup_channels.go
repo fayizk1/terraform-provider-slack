@@ -67,7 +67,7 @@ func resourceSlackUserGroupChannelsCreate(d *schema.ResourceData, meta interface
 	userGroup, err := client.UpdateUserGroupContext(ctx, *params)
 
 	if err != nil {
-		return fmt.Errorf("user group chanel create error: %s (%v),  %s", usergroupId, channelsIds, err.Error())
+		return fmt.Errorf("user group channel create error: %s (%v),  %s", usergroupId, channelsIds, err.Error())
 	}
 
 	configureSlackUserGroupChannels(d, userGroup)
@@ -98,7 +98,7 @@ func resourceSlackUserGroupChannelsRead(d *schema.ResourceData, meta interface{}
 		})
 
 		if err != nil {
-			return fmt.Errorf("user group chanel read error: %s,  %s", usergroupId, err.Error())
+			return fmt.Errorf("user group channel read error: %s,  %s", usergroupId, err.Error())
 		}
 
 		userGroups = &tempUserGroups
